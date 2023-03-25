@@ -14,11 +14,16 @@ const { MongoClient } = require("mongodb")
 const client = new MongoClient(URI)
 
 app.post('/event', async (req, res) => {
-  const doc = req.body
+  const payload = req.body
+  let isArray = Array.isArray(payload)
   const database = client.db(DB)
   const events = database.collection(COLLECTION)
   try {
-    events.insertOne(doc)
+    if (isArray) {
+      events.insertMany(payload)
+    } else {
+      events.insertOne(payload)
+    }
     res.status(200).send('Data saved to database')
   } catch (error) {
     console.error(error)
