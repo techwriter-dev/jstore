@@ -20,8 +20,12 @@ app.post('/event', async (req, res) => {
   const events = database.collection(COLLECTION)
   try {
     if (isArray) {
+      for (let i = 0; i < payload.length; i++) {
+        payload[i].timestamp = new Date(payload[i].timestamp)
+      }
       events.insertMany(payload)
     } else {
+      payload.timestamp = new Date(payload.timestamp)
       events.insertOne(payload)
     }
     res.status(200).send('Data saved to database')
