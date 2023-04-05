@@ -5,9 +5,15 @@ const dotenv = require('dotenv').config()
 const PORT = process.env.PORT
 const URI = process.env.URI
 const DB = process.env.DB
-const COLLECTION = process.env.COLLECTION
-const ENDPOINT = process.env.ENDPOINT
 const DATES = process.env.DATES.split(' ')
+
+if (DATES.length) {
+  console.log('The following fields will be converted to ISODate objects:')
+  for (let key of DATES) {
+    console.log('  '+key)
+  }
+  console.log()
+}
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -15,11 +21,20 @@ app.use(express.urlencoded({ extended: true }))
 const { MongoClient } = require("mongodb")
 const client = new MongoClient(URI)
 
-app.post('/'+ENDPOINT, async (req, res) => {
+app.post('/event', async (req, res) => {
   let payload = req.body
+  res = Store(payload,'events',res)
+})
+
+app.post('/traffic', async (req, res) => {
+  let payload = req.body
+  res = Store(payload,'traffic',res)
+})
+
+function Store (payload,collection,res) {
   let isArray = Array.isArray(payload)
   const database = client.db(DB)
-  const events = database.collection(COLLECTION)
+  const events = database.collection(collection)
   try {
     let count = 0
     if (isArray) {
@@ -38,7 +53,8 @@ app.post('/'+ENDPOINT, async (req, res) => {
     console.error(error)
     res.status(500).send('Error inserting document(s)')
   }
-})
+  return res
+}
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`)
