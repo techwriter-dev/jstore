@@ -21,6 +21,21 @@ app.use(express.urlencoded({ extended: true }))
 const { MongoClient } = require("mongodb")
 const client = new MongoClient(URI)
 
+const connectDB = async () => {
+  try {
+    client.db(DB)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+//Connect to the database before listening
+connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`listening for requests on port ${PORT}`)
+    })
+})
+
 app.post('/event', async (req, res) => {
   let payload = req.body
   res = Store(payload,'events',res)
@@ -31,10 +46,10 @@ app.post('/traffic', async (req, res) => {
   res = Store(payload,'traffic',res)
 })
 
-function Store (payload,collection,res) {
+async function Store (payload,collection,res) {
   let isArray = Array.isArray(payload)
-  const database = client.db(DB)
-  const events = database.collection(collection)
+  const events = client.db(DB)
+    .collection(collection)
   try {
     let count = 0
     if (isArray) {
@@ -55,10 +70,6 @@ function Store (payload,collection,res) {
   }
   return res
 }
-
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`)
-})
 
 function stringToDate(keys, doc) {
   for (key of keys) {
