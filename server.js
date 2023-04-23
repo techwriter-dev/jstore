@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 
 const dotenv = require('dotenv').config()
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 80
 const URI = process.env.URI
 const DB = process.env.DB
 const DATES = process.env.DATES.split(' ')
@@ -32,7 +32,7 @@ const connectDB = async () => {
 //Connect to the database before listening
 connectDB().then(() => {
     app.listen(PORT, () => {
-      console.log(`listening for requests on port ${PORT}`)
+      console.log(`Listening on port ${PORT}`)
     })
 })
 
