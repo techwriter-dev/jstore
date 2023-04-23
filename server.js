@@ -24,6 +24,7 @@ const client = new MongoClient(URI)
 const connectDB = async () => {
   try {
     client.db(DB)
+    console.log('Connected to MongoDB')
   } catch (error) {
     console.error(error)
   }
@@ -46,7 +47,7 @@ app.post('/traffic', async (req, res) => {
   res = Store(payload,'traffic',res)
 })
 
-async function Store (payload,collection,res) {
+function Store (payload,collection,res) {
   let isArray = Array.isArray(payload)
   const events = client.db(DB)
     .collection(collection)
